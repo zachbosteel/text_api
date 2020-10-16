@@ -2,7 +2,7 @@ import json
 import logging
 import os
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 
@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 
 LB = LoadBalancer()
 
+def default(request):
+    return HttpResponse(status=200)
 
 def send(request):
     request_body = json.loads(request.body)
@@ -99,5 +101,10 @@ def callback(request):
     sm.end_time = end_time
     sm.status = request_body["status"]
     sm.save()
+
+
+def list_messages(request):
+    messages = list(SentMessage.objects.values())
+    return JsonResponse({'data': messages})
 
 

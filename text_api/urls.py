@@ -19,7 +19,9 @@ from django.urls import path
 from wrapper import views
 
 urlpatterns = [
+    path('/', views.default)
     path('admin/', admin.site.urls),
     path('send/', views.send),
     path('ingest/', views.callback)
+    path('list_messages/', views.list_messages)
 ]
