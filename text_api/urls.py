@@ -16,12 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from wrapper import views
+from wrapper.views import CallbackView, LBView, SendView, ListMessageView
 
 urlpatterns = [
-    path('healthcheck/', views.default),
     path('admin/', admin.site.urls),
-    path('send/', views.send),
-    path('ingest/', views.callback),
-    path('list_messages/', views.list_messages)
+    path('send/', SendView.as_view()),
+    path('ingest/', CallbackView.as_view()),
+    path('list_messages/', ListMessageView.as_view())
 ]

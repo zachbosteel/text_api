@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from wrapper.load_balancer import LoadBalancer
 from wrapper.models import InvalidNumber, SentMessage, Server
-from wrapper.views import send, update_lb_strategy, callback
+from wrapper.views import SendView, LBView, CallbackView
 
 
 class MockRequest:
@@ -34,7 +34,7 @@ class TestSend(TestCase):
             "message": "The text is coming from inside the internet."
         })
         request = MockRequest(body=data)
-        send(request)
+        SendView().post(request)
         m_jsonresp.assert_called_with({
             "status": 400,
             "message": "The number you have submitted has been marked invalid by our SMS providers."
@@ -51,7 +51,7 @@ class TestSend(TestCase):
             "message": "You're doing it, Peter."
         })
         request = MockRequest(body=data)
-        send(request)
+        SendView().post(request)
         m_jsonresp.assert_called_with({
             "status": 502,
             "message": "Bad gateway. Failed to forward data. Max retries exceeded."
@@ -68,7 +68,7 @@ class TestSend(TestCase):
             "message": "Vote."
         })
         request = MockRequest(body=data)
-        send(request)
+        SendView().post(request)
         m_jsonresp.assert_called_with({
             "status": 200,
             "message": "Data successfully forwarded."
@@ -86,7 +86,7 @@ class TestSend(TestCase):
             "message": "Vote."
         })
         request = MockRequest(body=data)
-        send(request)
+        SendView().post(request)
         sm = SentMessage.objects.all()[:1][0]
         self.assertEqual(sm.server, s)
         self.assertEqual(sm.number, "9994440101")
@@ -104,7 +104,7 @@ class TestUpdateLBStrategy(TestCase):
             "strategy": "weighted_random"
         })
         request = MockRequest(body=data)
-        update_lb_strategy(request)
+        LBView().post(request)
         m_LB.set_strat.assert_called_with("weighted_random")
 
     @mock.patch("wrapper.views.JsonResponse")
@@ -114,7 +114,7 @@ class TestUpdateLBStrategy(TestCase):
             "strategy": "weighted_random"
         })
         request = MockRequest(body=data)
-        update_lb_strategy(request)
+        LBView().post(request)
         m_jsonresp.assert_called_with({
             "status": 200,
             "message": "Load Balancer strategy successfully updated."
@@ -131,7 +131,7 @@ class TestUpdateLBStrategy(TestCase):
             "strategy": "weighted_random"
         })
         request = MockRequest(body=data)
-        update_lb_strategy(request)
+        LBView().post(request)
 
         m_jsonresp.assert_called_with({
             "status": 500,
@@ -166,7 +166,7 @@ class TestCallback(TestCase):
             "status": "delivered"
         })
         request = MockRequest(body=data)
-        callback(request)
+        CallbackView().post(request)
 
     def test_callback_creates_invalid_number_if_response_status_invalid(self):
         data = json.dumps({
@@ -174,4 +174,4 @@ class TestCallback(TestCase):
             "status": "invalid"
         })
         request = MockRequest(body=data)
-        callback(request)
+        CallbackView().post(request)
