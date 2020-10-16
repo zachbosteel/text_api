@@ -22,5 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('send/', SendView.as_view()),
     path('ingest/', CallbackView.as_view()),
-    path('list_messages/', ListMessageView.as_view())
+    path('list_messages/', ListMessageView.as_view()),
+    path('update_lb_strat/', LBView.as_view())
 ]
