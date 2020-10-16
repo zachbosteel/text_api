@@ -19,7 +19,7 @@ from django.urls import path
 from wrapper import views
 
 urlpatterns = [
-    path('/', views.default),
+    path('healthcheck/', views.default),
     path('admin/', admin.site.urls),
     path('send/', views.send),
     path('ingest/', views.callback),
