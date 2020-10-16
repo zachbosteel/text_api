@@ -66,7 +66,7 @@ class TestLoadBalancer(TestCase):
         m_avg.asser_called_once()
 
         #Assert our requests were made to the targeted_url each time
-        expected = [mock.call('server1', data='some_data'), mock.call('server2', data='some_other_data')]
+        expected = [mock.call('server1', headers={}, json='some_data'), mock.call('server2', headers={}, json='some_other_data')]
         self.assertEqual(m_request.call_args_list, expected)
 
     def test__weighted_random_selects_random_target_from_list(self):

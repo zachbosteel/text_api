@@ -22,9 +22,10 @@ class LoadBalancer:
         if strategy and strategy in self.strategies:
             self.strategy = strategy
 
-    def request(self, data):
+    def request(self, data, headers=None):
+        headers = {} if not headers else headers
         getattr(self, f"_{self.strategy}")()
-        return requests.post(self.targeted_url, data=data)
+        return requests.post(self.targeted_url, headers=headers, json=data)
 
     # private
             

@@ -25,11 +25,11 @@ def send(request):
                 "message": "The number you have submitted has been marked invalid by our SMS providers."
             }, status=400)
 
-    request_to_forward = json.dumps({
+    request_to_forward = {
         "to_number": request_body["number"],
         "message": request_body["message"],
         "callback_url": os.getenv('CALLBACK_URL'),
-    })
+    }
 
     sm = SentMessage(
         number = request_body["number"],
@@ -42,12 +42,15 @@ def send(request):
 
     while retry_count < int(os.getenv('MAX_RETRY', '2')):
         try: 
-            response = LB.request(request_to_forward)
+            response = LB.request(request_to_forward, headers={"Content-Type": "application/json"})
+            if response.status_code != 200:
+                print(response.status_code)
+                raise Exception(response.json()["message"])
             break
         except Exception as e:
             logger.error(f'The following exception occured:\n{e}')
             retry_count += 1
-   
+
     if retry_count >= int(os.getenv('MAX_RETRY', '2')):
         sm.status = 'failed_to_send'
         return JsonResponse({
@@ -55,7 +58,7 @@ def send(request):
             "message": "Bad gateway. Failed to forward data. Max retries exceeded."
         }, status=502)
 
-    sm.uuid = json.loads(response.body)["message_id"]
+    sm.uuid = response.json()["message_id"]
     sm.server = Server.objects.filter(url=LB.targeted_url).first()
 
 

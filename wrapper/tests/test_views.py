@@ -15,8 +15,12 @@ class MockRequest:
         self.body = body
 
 class MockResponse:
-    def __init__(self, body=None):
+    def __init__(self, body=None, status_code=200):
         self.body = body
+        self.status_code = status_code
+
+    def json(self):
+        return {"message_id": "some_id"}
 
 
 class TestSend(TestCase):
@@ -39,7 +43,7 @@ class TestSend(TestCase):
     @mock.patch("wrapper.views.JsonResponse")
     @mock.patch("wrapper.views.LB")
     def test_send_returns_502_if_it_exceeds_retry_count(self, m_LB, m_jsonresp):
-        def side_effect(self):
+        def side_effect(data, headers=None):
             raise Exception('The bears have really bad news.')
         m_LB.request.side_effect = side_effect
         data = json.dumps({
@@ -119,7 +123,7 @@ class TestUpdateLBStrategy(TestCase):
     @mock.patch("wrapper.views.JsonResponse")
     @mock.patch("wrapper.views.LB")
     def test_update_lb_strategy_returns_500_if_error(self, m_LB, m_jsonresp):
-        def side_effect(self):
+        def side_effect(data, headers=None):
             raise Exception("I'm afraid I can't do that, Dave.")
         m_LB.set_strat.side_effect = side_effect
 
